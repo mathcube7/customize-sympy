@@ -1,3 +1,31 @@
+"""
+Customization hack for broadcasting operations in SymPy Eq objects to lhs and rhs.
+Latest source file is at: https://github.com/mathcube7/customize-sympy/
+Blog post: https://awstip.com/customizing-pythons-sympy-for-easy-equation-manipulation-ca30b9d0dabf
+
+### Usage
+
+Apply arithmetic operations to sympy Eq objects:
+
+    >>> eqn1 = Eq(x**2 - 4, 45)
+    >>> eqn2 = eqn1 + 4  # __rmul__ is called; it applies +4 to both lhs and rhs
+    >>> print(eqn2)
+    Eq(x**2, 49)
+
+Apply any sympy functions:
+
+    >>> sqrt(eqn2)
+    Eq(sqrt(x**2), 7)    # function `sqrt` will be applied to both lhs and rhs
+
+Solve an equation:
+
+    >>> solve(eqn1)      # equation is rewritten as an expression equal to zero
+    [-7, 7]
+    >>> nsolve(eqn1, -1), nsolve(eqn1, 1)
+    (-7.0, 7.0)
+
+"""
+
 import sys
 import types
 
