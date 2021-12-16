@@ -44,14 +44,23 @@ class Eq(sympy.Eq):
 
 def _wrap_function(func):
     def f(*args, **kwargs):
+        """
+        Patch sympy function so it handles ``Eq`` as first argument correclty
+        by broadcasting the `func` action to both ``eq.lhs`` and ``eq.rhs``.
+        Functions `solve`, `nsolve`, etc. are handled differently, convering the
+        equation object into an expression equal to zero: ``eq.lhs - eq.rhs``,
+        which is the expected input for "solve" functions in SymPy.
+        """
         if not args:
             return func(*args, **kwargs)
         if isinstance(args[0], Eq):
             eq = args[0]
             other_args = args[1:]
-            return Eq(func(eq.lhs, *other_args, **kwargs),
-                      func(eq.rhs, *other_args, **kwargs))
-
+            if func.__name__ in ['solve', 'nsolve', 'dsolve']:
+                return func(eq.lhs - eq.rhs, *other_args, **kwargs)
+            else:
+                return Eq(func(eq.lhs, *other_args, **kwargs),
+                          func(eq.rhs, *other_args, **kwargs))
         else:
             return func(*args, **kwargs)
 
